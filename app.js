@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const fileUpload = require('express-fileupload');
+const methodOverride = require('method-override');
 const ejs = require('ejs');
 const path = require('path');
 const fs = require('fs');
@@ -25,6 +26,8 @@ app.use(express.urlencoded({ extended: true }));
 // json formatına çevirmeye yarıyor.
 app.use(express.json());
 app.use(fileUpload());
+// post require işlemini put olarak göndermek için method-override modülünü kullanıyoruz.
+app.use(methodOverride('_method'));
 
 
 // ROUTES
@@ -36,7 +39,7 @@ app.get('/', async (req, res) => {
         photos
     });
 });
-app.get('/photo/:id', async (req, res) => {
+app.get('/photos/:id', async (req, res) => {
     // console.log(req.params.id);
     // res.render(/photos);
     // Burada tek bir fotoya ait olan bilgi gönderilir.
@@ -45,12 +48,7 @@ app.get('/photo/:id', async (req, res) => {
         photo:findPhoto
     });
 });
-app.get('/about', (req, res) => {
-    res.render('about');
-});
-app.get('/add', (req, res) => {
-    res.render('add');
-});
+
 app.post('/photos', async (req, res) => {
     // console.log(req.body) -> forma girdiğimiz string bilgileri alıyoruz
     // await Photo.create(req.body);
@@ -73,6 +71,28 @@ app.post('/photos', async (req, res) => {
         });
     });
     res.redirect('/');
+});
+app.get('/photos/edit/:id', async (req, res) => {
+    const photo = await Photo.findOne({_id:req.params.id}) //paramsdan gelen underscore id ile eşleşmesi
+    res.render('edit',{
+        photo
+    }); // seçtiğimiz image'i template gönderme
+    // 2. parametre göndermek istediğimiz bilgi
+});
+app.put('/photos/:id', async (req, res) => {
+    const photo = await Photo.findOne({_id:req.params.id}) // update edilecek photo yakalandı
+    photo.title = req.body.title
+    photo.description = req.body.description
+    photo.save()
+
+    res.redirect(`/photos/${req.params.id}`) // backtick kullanıyor çünkü resmin url uzantısına gitmek istiyoruz.
+});
+
+app.get('/about', (req, res) => {
+    res.render('about');
+});
+app.get('/add', (req, res) => {
+    res.render('add');
 });
 app.get('/contact', (req, res) => {
     res.render('contact');
