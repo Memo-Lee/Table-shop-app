@@ -1,7 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const fileUpload = require('express-fileupload');
 const ejs = require('ejs');
 const path = require('path');
+const fs = require('fs');
+
 const Photo = require('./models/Photo');
 
 const app = express();
@@ -10,7 +13,7 @@ const app = express();
 mongoose.connect('mongodb://localhost/pcat-test-db');
 
 // TEMPLATE ENGINE
-app.set("view engine","ejs");
+app.set("view engine", "ejs");
 
 //MIDDLEWARES
 /* request - response döngüsünün içerisindeki görevi olan her fonksiyona 
@@ -18,16 +21,28 @@ middleware denir. Yani herşey request ve responsun 'middle'ında ortasında yap
 app.use(express.static('public'));
 // requesti response ederek sonlandırma işlemi için gerekli olan express methodları
 // urlencoded url okumamıza yarıyor.
-app.use(express.urlencoded({extended:true}));
+app.use(express.urlencoded({ extended: true }));
 // json formatına çevirmeye yarıyor.
 app.use(express.json());
+app.use(fileUpload());
+
 
 // ROUTES
 app.get('/', async (req, res) => {
     // index sayfasın da dinamik verileri görüntüleme işlemi
     const photos = await Photo.find({});
-    res.render('index',{
+    // .sort('-dateCreated')
+    res.render('index', {
         photos
+    });
+});
+app.get('/photo/:id', async (req, res) => {
+    // console.log(req.params.id);
+    // res.render(/photos);
+    // Burada tek bir fotoya ait olan bilgi gönderilir.
+    const findPhoto = await Photo.findById(req.params.id);
+    res.render('photo', {
+        photo:findPhoto
     });
 });
 app.get('/about', (req, res) => {
@@ -37,10 +52,26 @@ app.get('/add', (req, res) => {
     res.render('add');
 });
 app.post('/photos', async (req, res) => {
-    // forma girdiğimiz bilgileri yazdırıyoruz
-    // console.log(req.body);
-    await Photo.create(req.body);
-    // posttan sonra yönlendirme
+    // console.log(req.body) -> forma girdiğimiz string bilgileri alıyoruz
+    // await Photo.create(req.body);
+    // console.log(req.file.image) -> dosyanın bilg alıyoruz
+    // res.redirect('/'); ->     // posttan sonra yönlendirme
+
+    const uploadDir = 'public/uploads';
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir)
+    }
+
+    // __dirname projenin kökü , uploadImage dosya , uploadPath dosya yolu
+    let uploadImage = req.files.image;
+    let uploadPath = __dirname + '/public/uploads/' + uploadImage.name;
+
+    uploadImage.mv(uploadPath, async () => {
+        await Photo.create({
+            ...req.body,
+            image: '/uploads/' + uploadImage.name,
+        });
+    });
     res.redirect('/');
 });
 app.get('/contact', (req, res) => {

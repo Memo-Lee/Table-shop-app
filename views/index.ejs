@@ -47,20 +47,20 @@
                     </div>
                     
                     <div class="row tm-catalog-item-list">
-                        <% for(let i=0; i<photos.length;i++ ) { %> 
+                        <% photos.forEach(element => { %> 
                         <div class="col-lg-4 col-md-6 col-sm-12 tm-catalog-item">
                             <div class="position-relative tm-thumbnail-container">
-                                <img src="img/tn-01.jpg" alt="Image" class="img-fluid tm-catalog-item-img">    
-                                <a href="video-page.html" class="position-absolute tm-img-overlay">
+                                <img src="<%= element.image %>" alt="Image" class="img-fluid tm-catalog-item-img">    
+                                <a href="/photos/<%= element._id %>" class="position-absolute tm-img-overlay">
                                     <i class="fas fa-play tm-overlay-icon"></i>
                                 </a>
                             </div>    
                             <div class="p-4 tm-bg-gray tm-catalog-item-description">
-                                <h3 class="tm-text-primary mb-3 tm-catalog-item-title"><%= photos[i].title %></h3>
-                                <p class="tm-catalog-item-text"><%= photos[i].description %></p>
+                                <h3 class="tm-text-primary mb-3 tm-catalog-item-title"><%= element.title %></h3>
+                                <p class="tm-catalog-item-text"><%= element.description %></p>
                             </div>
                         </div>
-                        <% } %> 
+                        <% }) %> 
                     </div>
 
                     <!-- Catalog Paging Buttons -->
