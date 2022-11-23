@@ -27,13 +27,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(fileUpload());
 // post require işlemini put olarak göndermek için method-override modülünü kullanıyoruz.
-app.use(methodOverride('_method'));
+app.use(methodOverride('_method',{
+    methods:['POST','GET']
+})); // gerektiğinde metotların override olamasını belirtebiliyoruz.
+
 
 
 // ROUTES
 app.get('/', async (req, res) => {
     // index sayfasın da dinamik verileri görüntüleme işlemi
-    const photos = await Photo.find({});
+    const photos = await Photo.find({}).sort('-dateCreated');
     // .sort('-dateCreated')
     res.render('index', {
         photos
@@ -83,9 +86,17 @@ app.put('/photos/:id', async (req, res) => {
     const photo = await Photo.findOne({_id:req.params.id}) // update edilecek photo yakalandı
     photo.title = req.body.title
     photo.description = req.body.description
-    photo.save()
+    photo.save();
 
-    res.redirect(`/photos/${req.params.id}`) // backtick kullanıyor çünkü resmin url uzantısına gitmek istiyoruz.
+    res.redirect(`/photos/${req.params.id}`); // backtick kullanıyor çünkü resmin url uzantısına gitmek istiyoruz.
+});
+app.delete('/photos/:id', async (req,res) =>{
+    // await Photo.findByIdAndRemove(req.params.id); // alternatif 1 - upload image silmiyor.
+    const photo = await Photo.findOne({_id:req.params.id}) // underscoreid ' si = parametreden gelen id
+    let deletedImage = __dirname + '/public' + photo.image; //'/uploads/<imagename>.jpg'
+    fs.unlinkSync(deletedImage);
+    await Photo.findByIdAndRemove(req.params.id);
+    res.redirect('/');
 });
 
 app.get('/about', (req, res) => {
