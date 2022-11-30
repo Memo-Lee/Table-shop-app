@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const fileUpload = require('express-fileupload');
 const methodOverride = require('method-override');
 const ejs = require('ejs');
-const photoController = require('./controllers/photoControllers');
-const pageController = require('./controllers/pageControllers');
+const photoControllers = require('./controllers/photoControllers');
+const pageControllers = require('./controllers/pageControllers');
 const app = express();
 
 // connect DB
@@ -30,20 +30,20 @@ app.use(methodOverride('_method',{
 
 
 // ROUTES
-app.get('/', photoController.getAllPhotos);
+app.get('/', photoControllers.getAllPhotos);
 
-app.post('/photos', photoController.createPhoto);
+app.get('/photos/:id', photoControllers.getPhoto);
 
-app.get('/photos/:id', photoController.getPhoto);
+app.post('/photos', photoControllers.createPhoto);
 
-app.put('/photos/:id', photoController.updatePhoto);
+app.put('/photos/:id', photoControllers.updatePhoto);
 
-app.delete('/photos/:id', photoController.deletePhoto);
+app.delete('/photos/:id', photoControllers.deletePhoto);
 
-app.get('/photos/edit/:id', pageController.getEditPage);
-app.get('/about', pageController.getAboutPage);
-app.get('/add', pageController.getAddPage);
-app.get('/contact', pageController.getContactPage);
+app.get('/photos/edit/:id', pageControllers.getEditPage);
+app.get('/about', pageControllers.getAboutPage);
+app.get('/add', pageControllers.getAddPage);
+app.get('/contact', pageControllers.getContactPage);
 
 
 const port = 3000;
