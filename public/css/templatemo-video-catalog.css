@@ -192,13 +192,6 @@ h2, p { color: #666666; }
     font-size: 1.2rem; 
 }
 
-#tm-video-control-button {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000;
-}
-
 .tm-content-container {
     max-width: 1422px;
     padding-top: 80px;

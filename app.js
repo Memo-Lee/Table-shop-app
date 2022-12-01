@@ -7,8 +7,13 @@ const photoControllers = require('./controllers/photoControllers');
 const pageControllers = require('./controllers/pageControllers');
 const app = express();
 
-// connect DB
-mongoose.connect('mongodb://localhost/pcat-test-db');
+// connect DB atlas tanımlaması
+mongoose.connect('mongodb+srv://memolee:tAmR6X4M72Npf06x@cluster0.srwwys5.mongodb.net/pcat-db?retryWrites=true&w=majority')
+.then(()=>{
+    console.log('DB CONNECTED!');
+}).catch((err)=>{
+    console.log(err);
+});
 
 // TEMPLATE ENGINE
 app.set("view engine", "ejs");
@@ -46,7 +51,7 @@ app.get('/add', pageControllers.getAddPage);
 app.get('/contact', pageControllers.getContactPage);
 
 
-const port = 3000;
+const port = process.env.PORT || 5000; // hosting'in portu belirlemesi için
 app.listen(port, () => {
     console.log(`Pcat app sunucu ${port} portunda başlatıldı...`)
 });
